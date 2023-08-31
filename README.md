@@ -18,7 +18,7 @@
 **• pip install -r requirements.txt**
 # USAGE
 
-• Also create an account on https://mailtrap.io/ to use a temp mail.
+• Create an account on https://mailtrap.io/ to use a temp mail.
 
 • Click on ***Show Credentials*** to see your **Username** and **Password.**
 
