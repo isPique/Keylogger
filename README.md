@@ -1,18 +1,29 @@
-# About This Keylogger
+# What Does This Keylogger Do?
 • Every 10 seconds you get **Keyboard**, **Mouse**, **ScreenShot**, **Microphone** and **SystemInfo** inputs from target computer and send to your mail.
 
 • If the target finds the code and opens the file, the program **Deletes** itself.
 
 ***• The aim of the project is to test the security of Operating Systems.***
 
+# About Getting Credentials
+
+• ***Windows OS*** saves **Web Credentials** and **Windows Credentials** in the **Credential Manager.**
+
+• However, the program may encounter some errors while decoding user passwords, so passwords are decoded in JSON format.
+
+• If some passwords are still not decoded, you can decode them with the `decode.py`
+
+• Please note that is not possible anyway retrieve or save user passwords in hashed or plaintext form using methods provided by the Windows API or other legal means.
+
+• User passwords are sensitive information and are handled with the highest level of security.
+
 # Warning
 
-• You need to run the script as administrator because the file copies itself to `C:\Windows\System32`
+• You need to run the script as administrator because the code copies itself to `C:\Windows\System32`
 
 • Also, remember that **even the higher-level** file copying functions like `shutil.copy() and shutil.copy2()` can't copy all file metadata.
 
 • On Windows, file owners, ACLs and alternate data streams are not copied.
-
 
 # INSTALLATION
 **• pip install -r requirements.txt**
@@ -31,3 +42,9 @@
 • Then create an account on https://ipinfo.io/ to get your **Access Token.**
 
 ![image](https://github.com/isPique/Keylogger/assets/139041426/45c987b1-4781-4468-9672-672e43b58672)
+
+• After you have set up the token in your ipinfo account, you are done!
+
+# Antivirus Test
+
+![image](https://github.com/isPique/Keylogger/assets/139041426/7755e46f-bb73-4f6e-977d-0d1a8a927c4f)
