@@ -1,4 +1,4 @@
-# What Does This Keylogger Do?
+# What Does This Keylogger Do? 🤔
 • First 10 seconds you get **System Information, IP Information, Local Users Information** and **Wifi passwords** from target computer and send to your mail.
 
 • 2nd and other mails (every 10 seconds) you get **Keyboard Inputs**, **Mouse Coordinates**, **ScreenShot**, **Microphone Recording** and **Photo (if target has a WebCam)** from target computer and send to your mail.
@@ -19,7 +19,7 @@
 
 • User passwords are sensitive information and are handled with the highest level of security.
 
-# Warning
+# ⚠️ Warning ⚠️
 
 • You need to run the script as administrator because the script copies itself to `C:\Windows\System32`
 
@@ -29,7 +29,7 @@
 
 # INSTALLATION
 **• pip install -r requirements.txt**
-# USAGE
+# USAGE 🐣
 
 • Create an account on https://mailtrap.io/ to use a temp mail.
 
@@ -45,7 +45,7 @@
 
 ![image](https://github.com/isPique/Keylogger/assets/139041426/45c987b1-4781-4468-9672-672e43b58672)
 
-• After you have set up the token in your ipinfo account, you are done!
+• After you have set up the token in your ipinfo account, you are done! ✔
 
 # Antivirus Test
 
