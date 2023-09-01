@@ -1,0 +1,8 @@
+opencv-python==4.8.0.74
+WMI==1.5.1
+pywin32==306
+requests==2.31.0
+pyscreenshot==3.1
+sounddevice==0.4.6
+soundfile==0.12.1
+pynput==1.7.6
