@@ -23,12 +23,14 @@
 
 * You need to run the script as administrator because the script copies itself to `C:\Windows\System32`
 
-* Also, remember that **even the higher-level** file copying functions like `shutil.copy() and shutil.copy2()` can't copy all file metadata.
+* Also, remember that **even the higher-level** file copying functions like `shutil.copy()` and `shutil.copy2()` can't copy all file metadata.
 
 * On Windows, file owners, Access Control Lists (ACLs) and alternate data streams are not copied.
 
 # INSTALLATION
-*     pip install requirements.txt
+```py
+pip install requirements.txt
+```
 # USAGE 🐣
 
 * Create an account on https://mailtrap.io/ to use a temp mail.
