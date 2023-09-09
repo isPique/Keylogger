@@ -28,7 +28,7 @@
 * On Windows, file owners, Access Control Lists (ACLs) and alternate data streams are not copied.
 
 # INSTALLATION
-* **pip install -r requirements.txt**
+*     pip install requirements.txt
 # USAGE 🐣
 
 * Create an account on https://mailtrap.io/ to use a temp mail.
