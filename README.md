@@ -7,6 +7,11 @@
 
 * ***The aim of the project is to test the security of Operating Systems.***
 
+# INSTALLATION
+```
+pip install -r requirements.txt
+```
+
 # About Getting Credentials
 
 * ***Windows OS*** saves **Web Credentials** and **Windows Credentials** in the **Credential Manager.**
@@ -27,10 +32,6 @@
 
 * On Windows, file owners, Access Control Lists (ACLs) and alternate data streams are not copied.
 
-# INSTALLATION
-```py
-pip install requirements.txt
-```
 # USAGE 🐣
 
 * Create an account on https://mailtrap.io/ to use a temp mail.
