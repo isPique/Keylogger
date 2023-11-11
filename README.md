@@ -5,7 +5,7 @@
 
 * If the target finds the code and opens the file, the program **Deletes** itself.
 
-* ***The aim of the project is to test the security of Operating Systems.***
+* The objective of this repository is to serve as an example, it has educational purposes, and in no case does it pretend to be perfect or fully functional.
 
 # INSTALLATION
 ```
