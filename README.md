@@ -8,7 +8,7 @@
 * The objective of this repository is to serve as an example, it has educational purposes, and in no case does it pretend to be perfect or fully functional.
 
 # INSTALLATION
-```
+```console
 pip install -r requirements.txt
 ```
 
