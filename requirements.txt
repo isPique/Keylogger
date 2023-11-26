@@ -5,4 +5,5 @@ requests==2.31.0
 pyscreenshot==3.1
 sounddevice==0.4.6
 soundfile==0.12.1
+pydub==0.25.1
 pynput==1.7.6
