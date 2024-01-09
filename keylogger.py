@@ -327,9 +327,9 @@ finally:
                             content = file.read()
                             if content:
                                 self.appendlog('Credentials saved to txt file.\n')
-
                 else:
                     self.appendlog("No credentials found.\n")
+
             except Exception as e:
                 self.appendlog("An error occurred while getting credentials: {}\n".format(e))
 
