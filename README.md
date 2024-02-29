@@ -16,9 +16,9 @@ pip install -r requirements.txt
 
 * ***Windows OS*** saves **Web Credentials** and **Windows Credentials** in the **Credential Manager.**
 
-* However, the program may encounter some errors while decoding user passwords, so passwords are decoded in JSON format.
+* However, the program may encounter some errors while decoding user passwords.
 
-* If some passwords are still not decoded, you can decode them with the `decode.py`
+* If some passwords are still not decoded, you can decode them with the `decode.py` (at least some of them).
 
 * Please note that is not possible anyway retrieve or save user passwords in hashed or plaintext form using methods provided by the Windows API or other legal means.
 
