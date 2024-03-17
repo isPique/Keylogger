@@ -1,4 +1,4 @@
-# What Does This Keylogger Do? 🤔
+# What Does This "Key"logger Do? 🤔
 * First 10 seconds you get **System Information, Local and Public IP Information, Local Users Information, OS Information** and **Wifi passwords** from target computer and send to your mail.
 
 * 2nd and other mails (every 10 seconds) you get **Keyboard Inputs**, **Mouse Coordinates**, **ScreenShot**, **Microphone Recording** and **Photo (if target has a WebCam)** from target computer and send to your mail.
