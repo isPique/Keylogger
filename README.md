@@ -49,11 +49,3 @@ pip install -r requirements.txt
 ![image](https://github.com/isPique/Keylogger/assets/139041426/45c987b1-4781-4468-9672-672e43b58672)
 
 * After you have set up the token in your ipinfo account, you are done! ✔
-
-# Antivirus Test
-
-![image](https://github.com/isPique/Keylogger/assets/139041426/7755e46f-bb73-4f6e-977d-0d1a8a927c4f)
-
-# Donations Accepted:
-
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/ispique)
